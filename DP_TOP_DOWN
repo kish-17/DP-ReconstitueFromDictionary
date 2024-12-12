@@ -1,0 +1,76 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+string dictionary[] = {"I", "Love", "dynamic", "programming"};
+int dictSize = 4; // number of words in dictionary
+
+bool isword(string S) {
+    for (int i = 0; i < dictSize; i++) {
+        if (dictionary[i] == S) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool isReconstructable(string S, int n) {
+    // dp[i] will be true if S[0...i-1] can be segmented into words from the dictionary
+    bool dp[25];   // assuming String size won't exceed 25 character
+    int end[25];   
+
+    // Initialize dp
+    dp[0] = true; // empty string 
+    for (int i = 1; i <= n; i++) {
+        dp[i] = false;
+    }
+
+    // filling the dp array
+    for (int i = 1; i <= n; i++) {
+        // Check all possible j to find a valid word s[j...i-1]
+        for (int j = 0; j < i; j++) {
+            if (dp[j]) {
+                string substr = S.substr(j, i - j);
+                if (isword(substr)) {
+                    dp[i] = true;
+                    end[i] = j; 
+                    break; 
+                }
+            }
+        }
+    }
+
+    // If dp[n] is true, means it has sucesfully segmented so now you can reconstruct the valid words
+    if (dp[n]) {
+        // Reconstruct from the end
+        int idx = n;
+        string words[99]; 
+        int count = 0;
+        while (idx > 0) {
+            int startIdx = end[idx];
+            string w = S.substr(startIdx, idx - startIdx);
+            words[count++] = w;
+            idx = startIdx;
+        }
+        // The words are collected in reverse order
+        for (int i = count - 1; i >= 0; i--) {
+            cout << words[i];
+            if (i > 0) cout << " ";
+        }
+        cout << "\n";
+        return true;
+    } else {
+        cout << "Cannot reconstitue.\n";
+        return false;
+    }
+}
+
+int main() {
+    string S = "ILovedynamicprogramming";
+    int n = (int)S.size();
+
+    bool result = isReconstructable(S, n);
+    // This should print: "I Love dynamic programming"
+    
+    return 0;
+}
